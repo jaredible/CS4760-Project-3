@@ -1,0 +1,7 @@
+# Executables
+master
+palin
+
+# Objects
+master.o
+palin.o
