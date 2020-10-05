@@ -9,16 +9,22 @@ PALIN_SRC	= palin.c
 PALIN_OBJ	= $(PALIN_SRC:.c=.o)
 PALIN		= palin
 
+SRC		= shared.h
+OBJ		= shared.o
+
+STANDARD	= constant.h
+
 OUTPUT		= $(MASTER) $(PALIN)
+
 all: $(OUTPUT)
 
-$(MASTER): $(MASTER_OBJ)
-	$(CC) $(CFLAGS) $(MASTER_OBJ) -o $(MASTER)
+$(MASTER): $(MASTER_OBJ) $(OBJ)
+	$(CC) $(CFLAGS) $(MASTER_OBJ) $(OBJ) -o $(MASTER)
 
-$(PALIN): $(PALIN_OBJ)
-	$(CC) $(CFLAGS) $(PALIN_OBJ) -o $(PALIN)
+$(PALIN): $(PALIN_OBJ) $(OBJ)
+	$(CC) $(CFLAGS) $(PALIN_OBJ) $(OBJ) -o $(PALIN)
 
-%.o: %.c
+%.o: %.c $(SRC) $(STANDARD)
 	$(CC) $(CFLAGS) -c $*.c -o $*.o
 
 .PHONY: clean

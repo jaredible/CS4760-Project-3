@@ -9,9 +9,19 @@
 #include <stdlib.h> // EXIT_SUCCESS
 #include <string.h> // strlen
 
+#include "shared.h"
+
 bool isPalindrome(char*);
 
 int main(int argc, char** argv) {
+	init(argc, argv);
+	
+	printf("index: %s\n", argv[1]);
+	
+	allocateMemory();
+	
+	printf("%s\n", shmptr->strings[0]);
+	
 	char *strings[] = {"a", "a0A", "ab0", "", "aBbA", "ab"};
 	
 	int i = 0;

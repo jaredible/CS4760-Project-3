@@ -7,35 +7,28 @@
 #include <getopt.h> // getopt, optarg, optind
 #include <stdarg.h> // va_end, va_list, va_start
 #include <stdbool.h> // false, true
-#include <stdio.h> // fprintf, perror, printf, stderr, vsnprintf
+#include <stdio.h> // fprintf, perror, printf, sprintf, stderr, vsnprintf
 #include <stdlib.h> // EXIT_FAILURE, EXIT_SUCCESS, atoi, exit
 #include <string.h> // strcpy
 #include <sys/ipc.h> // IPC_CREAT, IPC_RMID, ftok
 #include <sys/shm.h> // shmat, shmctl, shmdt, shmget
 #include <sys/stat.h> // S_IRUSR, S_IWUSR
+#include <sys/types.h> // pid_t
+#include <sys/wait.h> // wait
+#include <unistd.h> // execl, fork
 
-#define PERMS (S_IRUSR | S_IWUSR)
-
-struct shm {
-	char strings[20][256];
-};
+#include "constant.h"
+#include "shared.h"
 
 void usage(int);
 void error(char*, ...);
-void allocateMemory();
-void releaseMemory();
+void spawn(int);
 
-char *programName = NULL;
-
-int s = 2;
-int t = 100;
-
-int shmKey;
-int shmSegmentId;
-struct shm *shmptr;
+int s = CONCURRENT_CHILDREN_DEFAULT;
+int t = TIMEOUT_DEFAULT;
 
 int main(int argc, char** argv) {
-	programName = argv[0];
+	init(argc, argv);
 	
 	bool ok = true;
 	
@@ -82,6 +75,10 @@ int main(int argc, char** argv) {
 	strcpy(shmptr->strings[0], "test");
 	printf("%s\n", shmptr->strings[0]);
 	
+	spawn(1);
+
+	while(wait(NULL) > 0);
+
 	releaseMemory();
 	
 	return ok ? EXIT_SUCCESS : EXIT_FAILURE;
@@ -116,31 +113,15 @@ void error(char *fmt, ...) {
 	fprintf(stderr, "%s: %s\n", programName, buf);
 }
 
-void allocateMemory() {
-	if ((shmKey = ftok(".", 0)) == -1) {
-		perror("ftok");
+void spawn(int index) {
+	pid_t pid = fork();
+	if (pid == -1) {
+		perror("fork");
 		exit(EXIT_FAILURE);
-	}
-	
-	if ((shmSegmentId = shmget(shmKey, sizeof(struct shm), PERMS | IPC_CREAT)) == -1) {
-		perror("shmget");
-		exit(EXIT_FAILURE);
-	} else {
-		shmptr = (struct shm*) shmat(shmSegmentId, NULL, 0);
-	}
-}
-
-void releaseMemory() {
-	if (shmptr != NULL) {
-		if (shmdt(shmptr) == -1) {
-			perror("shmdt");
-			exit(EXIT_FAILURE);
-		}
-	}
-	if (shmSegmentId > 0) {
-		if (shmctl(shmSegmentId, IPC_RMID, NULL) == -1) {
-			perror("shmctl");
-			exit(EXIT_FAILURE);
-		}
+	} else if (pid == 0) {
+		char cindex[3];
+		sprintf(cindex, "%d", index);
+		execl("./palin", "palin", cindex, (char*) NULL);
+		exit(EXIT_SUCCESS);
 	}
 }
