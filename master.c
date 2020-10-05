@@ -3,19 +3,36 @@
  * Date: October, 4, 2020
  */
 
-#include <getopt.h> // getopt, isdigit, optarg, optind
+#include <ctype.h> // isdigit
+#include <getopt.h> // getopt, optarg, optind
 #include <stdarg.h> // va_end, va_list, va_start
 #include <stdbool.h> // false, true
-#include <stdio.h> // fprintf, printf, stderr, vsnprintf
+#include <stdio.h> // fprintf, perror, printf, stderr, vsnprintf
 #include <stdlib.h> // EXIT_FAILURE, EXIT_SUCCESS, atoi, exit
+#include <string.h> // strcpy
+#include <sys/ipc.h> // IPC_CREAT, IPC_RMID, ftok
+#include <sys/shm.h> // shmat, shmctl, shmdt, shmget
+#include <sys/stat.h> // S_IRUSR, S_IWUSR
+
+#define PERMS (S_IRUSR | S_IWUSR)
+
+struct shm {
+	char strings[20][256];
+};
 
 void usage(int);
 void error(char*, ...);
+void allocateMemory();
+void releaseMemory();
 
 char *programName = NULL;
 
 int s = 2;
 int t = 100;
+
+int shmKey;
+int shmSegmentId;
+struct shm *shmptr;
 
 int main(int argc, char** argv) {
 	programName = argv[0];
@@ -60,6 +77,13 @@ int main(int argc, char** argv) {
 	
 	printf("s: %d, t: %d, infile: %s\n", s, t, path);
 	
+	allocateMemory();
+	
+	strcpy(shmptr->strings[0], "test");
+	printf("%s\n", shmptr->strings[0]);
+	
+	releaseMemory();
+	
 	return ok ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
@@ -90,4 +114,33 @@ void error(char *fmt, ...) {
 	va_end(args);
 	
 	fprintf(stderr, "%s: %s\n", programName, buf);
+}
+
+void allocateMemory() {
+	if ((shmKey = ftok(".", 0)) == -1) {
+		perror("ftok");
+		exit(EXIT_FAILURE);
+	}
+	
+	if ((shmSegmentId = shmget(shmKey, sizeof(struct shm), PERMS | IPC_CREAT)) == -1) {
+		perror("shmget");
+		exit(EXIT_FAILURE);
+	} else {
+		shmptr = (struct shm*) shmat(shmSegmentId, NULL, 0);
+	}
+}
+
+void releaseMemory() {
+	if (shmptr != NULL) {
+		if (shmdt(shmptr) == -1) {
+			perror("shmdt");
+			exit(EXIT_FAILURE);
+		}
+	}
+	if (shmSegmentId > 0) {
+		if (shmctl(shmSegmentId, IPC_RMID, NULL) == -1) {
+			perror("shmctl");
+			exit(EXIT_FAILURE);
+		}
+	}
 }
