@@ -9,8 +9,8 @@ PALIN_SRC	= palin.c
 PALIN_OBJ	= $(PALIN_SRC:.c=.o)
 PALIN		= palin
 
-SRC		= shared.h
-OBJ		= shared.o
+SRC		= helper.h shared.h
+OBJ		= helper.o shared.o
 
 STANDARD	= constant.h
 

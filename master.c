@@ -5,6 +5,7 @@
 
 #include <ctype.h> // isdigit
 #include <getopt.h> // getopt, optarg, optind
+#include <signal.h> // signal
 #include <stdarg.h> // va_end, va_list, va_start
 #include <stdbool.h> // false, true
 #include <stdio.h> // fprintf, perror, printf, sprintf, stderr, vsnprintf
@@ -13,22 +14,27 @@
 #include <sys/ipc.h> // IPC_CREAT, IPC_RMID, ftok
 #include <sys/shm.h> // shmat, shmctl, shmdt, shmget
 #include <sys/stat.h> // S_IRUSR, S_IWUSR
+#include <sys/time.h> // itimerval, setitimer
 #include <sys/types.h> // pid_t
 #include <sys/wait.h> // wait
 #include <unistd.h> // execl, fork
 
 #include "constant.h"
+#include "helper.h"
 #include "shared.h"
 
 void usage(int);
-void error(char*, ...);
 void spawn(int);
+void timer(int);
+void exitHandler(int);
 
 int s = CONCURRENT_CHILDREN_DEFAULT;
 int t = TIMEOUT_DEFAULT;
 
 int main(int argc, char** argv) {
 	init(argc, argv);
+	
+	sigAction(SIGINT, &exitHandler);
 	
 	bool ok = true;
 	
@@ -70,6 +76,8 @@ int main(int argc, char** argv) {
 	
 	printf("s: %d, t: %d, infile: %s\n", s, t, path);
 	
+	timer(t);
+	
 	allocateMemory();
 	
 	strcpy(shmptr->strings[0], "test");
@@ -101,18 +109,6 @@ void usage(int status) {
 	exit(status);
 }
 
-void error(char *fmt, ...) {
-	int n = 100;
-	char buf[n];
-	va_list args;
-	
-	va_start(args, fmt);
-	vsnprintf(buf, n, fmt, args);
-	va_end(args);
-	
-	fprintf(stderr, "%s: %s\n", programName, buf);
-}
-
 void spawn(int index) {
 	pid_t pid = fork();
 	if (pid == -1) {
@@ -124,4 +120,26 @@ void spawn(int index) {
 		execl("./palin", "palin", cindex, (char*) NULL);
 		exit(EXIT_SUCCESS);
 	}
+}
+
+void timer(int seconds) {
+	sigAction(SIGALRM, &exitHandler);
+	
+	struct itimerval itv;
+	itv.it_value.tv_sec = seconds;
+	itv.it_value.tv_usec = 0;
+	itv.it_interval.tv_sec = 0;
+	itv.it_interval.tv_usec = 0;
+	if (setitimer(ITIMER_REAL, &itv, NULL) == -1) {
+		perror("setitimer");
+		exit(EXIT_FAILURE);
+	}
+}
+
+void exitHandler(int signum) {
+	sigAction(SIGTERM, SIG_IGN);
+	kill(-getpid(), SIGTERM);
+	while (wait(NULL) > 0);
+	releaseMemory();
+	exit(EXIT_SUCCESS);
 }

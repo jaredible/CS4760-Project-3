@@ -4,11 +4,13 @@
  */
 
 #include <ctype.h> // tolower
+#include <signal.h>
 #include <stdbool.h> // false, true
 #include <stdio.h> // printf
 #include <stdlib.h> // EXIT_SUCCESS
 #include <string.h> // strlen
 
+#include "helper.h"
 #include "shared.h"
 
 bool isPalindrome(char*);
@@ -29,6 +31,8 @@ int main(int argc, char** argv) {
 		char *string = strings[i];
 		printf("string: %s, isPalindrome: %s\n", string, isPalindrome(string) ? "true" : "false");
 	}
+	
+	while (true);
 	
 	return EXIT_SUCCESS;
 }
