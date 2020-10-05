@@ -19,9 +19,17 @@ bool isPalindrome(char*);
 int main(int argc, char** argv) {
 	init(argc, argv);
 	
-	printf("index: %s\n", argv[1]);
+	int index;
 	
+	if (argc < 2) {
+		error("no argument supplied for index");
+	} else {
+		index = atoi(argv[1]);
+	}
+
 	allocateMemory();
+	
+	printf("index: %d, string: %s\n", index, shmptr->strings[index]);
 	
 	sleep(1);
 	

@@ -31,3 +31,12 @@ void sigAction(int signum, void handler(int)) {
 		exit(EXIT_FAILURE);
 	}
 }
+
+void removeNewline(char *s) {
+	while (*s) {
+		if (*s == '\n') {
+			*s = '\0';
+		}
+		s++;
+	}
+}

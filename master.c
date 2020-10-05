@@ -24,6 +24,7 @@
 #include "shared.h"
 
 void usage(int);
+int load(char*);
 void spawn(int);
 void timer(int);
 void exitHandler(int);
@@ -71,13 +72,18 @@ int main(int argc, char** argv) {
 	char *path;
 	
 	if ((path = argv[optind]) == NULL) {
-		error("missing input file");
+		error("no argument supplied for infile");
 		usage(EXIT_FAILURE);
 	}
 	
-	timer(t);
-	
 	allocateMemory();
+	
+	int c = load(path);
+	
+	n = MIN(c, CHILDREN_MAX);
+	s = MIN(s, n);
+	
+	timer(t);
 	
 	int i = 0;
 	int j = n;
@@ -114,6 +120,28 @@ void usage(int status) {
 		printf("       -t time  : Time, in seconds, after which the program will terminate (default 100)\n");
 	}
 	exit(status);
+}
+
+int load(char *path) {
+	FILE *fp;
+	if ((fp = fopen(path, "r")) == NULL) {
+		perror("fopen");
+		exit(EXIT_FAILURE);
+	}
+	
+	int i = 0;
+	char *line;
+	size_t len = 0;
+	ssize_t read;
+	while (i < n && (read = getline(&line, &len, fp)) != -1) {
+		removeNewline(line);
+		strcpy(shmptr->strings[i++], line);
+	}
+
+	fclose(fp);
+	if (line) free(line);
+
+	return i;
 }
 
 void spawn(int index) {
