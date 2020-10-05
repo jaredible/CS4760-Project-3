@@ -62,6 +62,7 @@ void semAllocate() {
 }
 
 void semRelease() {
+	semctl(semid, 0, IPC_RMID);
 }
 
 void semWait() {
