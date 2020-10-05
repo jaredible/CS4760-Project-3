@@ -17,30 +17,69 @@ void init(int argc, char **argv) {
 	setvbuf(stderr, NULL, _IONBF, 0);
 }
 
-void allocateMemory() {
-	if ((shmKey = ftok(".", 0)) == -1) {
+void shmAllocate() {
+	if ((shmkey = ftok(KEY_PATHNAME, KEY_PROJID_SHM)) == -1) {
 		perror("ftok");
 		exit(EXIT_FAILURE);
 	}
-	if ((shmSegmentId = shmget(shmKey, sizeof(struct shm), PERMS | IPC_CREAT)) == -1) {
+	if ((shmid = shmget(shmkey, sizeof(struct shm), PERMS | IPC_CREAT)) == -1) {
 		perror("shmget");
 		exit(EXIT_FAILURE);
 	} else {
-		shmptr = (struct shm*) shmat(shmSegmentId, NULL, 0);
+		shmptr = (struct shm*) shmat(shmid, NULL, 0);
 	}
 }
 
-void releaseMemory() {
+void shmRelease() {
 	if (shmptr != NULL) {
 		if (shmdt(shmptr) == -1) {
 			perror("shmdt");
 			exit(EXIT_FAILURE);
 		}
 	}
-	if (shmSegmentId > 0) {
-		if (shmctl(shmSegmentId, IPC_RMID, NULL) == -1) {
+	if (shmid > 0) {
+		if (shmctl(shmid, IPC_RMID, NULL) == -1) {
 			perror("shmctl");
 			exit(EXIT_FAILURE);
 		}
+	}
+}
+
+char *getString(int index) {
+	return shmptr->strings[index];
+}
+
+void semAllocate() {
+	if ((semkey = ftok(KEY_PATHNAME, KEY_PROJID_SEM)) == -1) {
+		perror("ftok");
+		exit(EXIT_FAILURE);
+	}
+	if ((semid = semget(semkey, 1, PERMS | IPC_CREAT)) == -1) {
+		perror("semget");
+		exit(EXIT_FAILURE);
+	}
+	semctl(semid, 0, SETVAL, 1);
+}
+
+void semRelease() {
+}
+
+void semWait() {
+	sop.sem_num = 0;
+	sop.sem_op = -1;
+	sop.sem_flg = 0;
+	if (semop(semid, &sop, 1) == -1) {
+		perror("semop");
+		exit(EXIT_FAILURE);
+	}
+}
+
+void semSignal() {
+	sop.sem_num = 0;
+	sop.sem_op = 1;
+	sop.sem_flg = 0;
+	if (semop(semid, &sop, 1) == -1) {
+		perror("semop");
+		exit(EXIT_FAILURE);
 	}
 }

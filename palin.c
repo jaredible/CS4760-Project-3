@@ -9,6 +9,8 @@
 #include <stdio.h> // printf
 #include <stdlib.h> // EXIT_SUCCESS
 #include <string.h> // strlen
+#include <sys/sem.h>
+#include <time.h> // time
 #include <unistd.h> // sleep
 
 #include "helper.h"
@@ -26,12 +28,29 @@ int main(int argc, char** argv) {
 	} else {
 		index = atoi(argv[1]);
 	}
-
-	allocateMemory();
 	
-	printf("index: %d, string: %s\n", index, shmptr->strings[index]);
+	srand(time(NULL) + index);
 	
-	sleep(1);
+	shmAllocate();
+	semAllocate();
+	
+	char *string = shmptr->strings[index];
+	bool is = isPalindrome(string);
+	
+	fprintf(stderr, "%s: Process %d wants to enter critical section\n", getFormattedTime(), index);
+	
+	semWait();
+	
+	/* Enter critical section */
+	
+	fprintf(stderr, "%s: Process %d in critical section\n", getFormattedTime(), index);
+	sleep(rand() % 3);
+	logOutput(is ? "palin.out" : "nopalin.out", "%s %d %d %s\n", getFormattedTime(), getpid(), index, string);
+	fprintf(stderr, "%s: Process %d exiting critical section\n", getFormattedTime(), index);
+	
+	/* Exit critical section */
+	
+	semSignal();
 	
 	return EXIT_SUCCESS;
 }

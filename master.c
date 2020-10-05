@@ -76,7 +76,8 @@ int main(int argc, char** argv) {
 		usage(EXIT_FAILURE);
 	}
 	
-	allocateMemory();
+	shmAllocate();
+	semAllocate();
 	
 	int c = load(path);
 	
@@ -94,13 +95,15 @@ int main(int argc, char** argv) {
 	
 	while (j > 0) {
 		wait(NULL);
+		logOutput("output.log", "%s: Process %d finished\n", getFormattedTime(), n - j);
 		if (i < n) {
 			spawn(i++);
 		}
 		j--;
 	}
 	
-	releaseMemory();
+	shmRelease();
+	semRelease();
 	
 	return ok ? EXIT_SUCCESS : EXIT_FAILURE;
 }
@@ -150,6 +153,7 @@ void spawn(int index) {
 		perror("fork");
 		exit(EXIT_FAILURE);
 	} else if (pid == 0) {
+		logOutput("output.log", "%s: Process %d starting\n", getFormattedTime(), index);
 		char cindex[3];
 		sprintf(cindex, "%d", index);
 		execl("./palin", "palin", cindex, (char*) NULL);
@@ -175,6 +179,7 @@ void exitHandler(int signum) {
 	sigAction(SIGTERM, SIG_IGN);
 	kill(-getpid(), SIGTERM);
 	while (wait(NULL) > 0);
-	releaseMemory();
+	shmRelease();
+	semRelease();
 	exit(EXIT_SUCCESS);
 }

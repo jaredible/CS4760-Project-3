@@ -7,5 +7,7 @@
 void error(char*, ...);
 void sigAction(int, void(int));
 void removeNewline(char*);
+void logOutput(char*, char*, ...);
+char *getFormattedTime();
 
 #endif

@@ -1,7 +1,14 @@
+/*
+ * Author: Jared Diehl
+ * Date: October 16, 2020
+ */
+
 #include <signal.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <time.h>
 
 #include "helper.h"
 #include "shared.h"
@@ -39,4 +46,31 @@ void removeNewline(char *s) {
 		}
 		s++;
 	}
+}
+
+void logOutput(char *path, char *fmt, ...) {
+	FILE *fp;
+	if ((fp = fopen(path, "a+")) == NULL) {
+		perror("fopen");
+		exit(EXIT_FAILURE);
+	}
+	
+	int n = 1024;
+	char buf[n];
+	va_list args;
+	
+	va_start(args, fmt);
+	vsnprintf(buf, n, fmt, args);
+	va_end(args);
+	
+	fprintf(fp, buf);
+	fclose(fp);
+}
+
+char *getFormattedTime() {
+	int n = 100;
+	char *ftime = malloc(n * sizeof(char));
+	time_t now = time(NULL);
+	strftime(ftime, n, "%H:%M:%S", localtime(&now));
+	return ftime;
 }
