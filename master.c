@@ -28,6 +28,7 @@ void spawn(int);
 void timer(int);
 void exitHandler(int);
 
+int n = TOTAL_CHILDREN_DEFAULT;
 int s = CONCURRENT_CHILDREN_DEFAULT;
 int t = TIMEOUT_DEFAULT;
 
@@ -74,19 +75,25 @@ int main(int argc, char** argv) {
 		usage(EXIT_FAILURE);
 	}
 	
-	printf("s: %d, t: %d, infile: %s\n", s, t, path);
-	
 	timer(t);
 	
 	allocateMemory();
 	
-	strcpy(shmptr->strings[0], "test");
-	printf("%s\n", shmptr->strings[0]);
+	int i = 0;
+	int j = n;
 	
-	spawn(1);
-
-	while(wait(NULL) > 0);
-
+	while (i < s) {
+		spawn(i++);
+	}
+	
+	while (j > 0) {
+		wait(NULL);
+		if (i < n) {
+			spawn(i++);
+		}
+		j--;
+	}
+	
 	releaseMemory();
 	
 	return ok ? EXIT_SUCCESS : EXIT_FAILURE;

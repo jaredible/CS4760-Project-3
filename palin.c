@@ -9,6 +9,7 @@
 #include <stdio.h> // printf
 #include <stdlib.h> // EXIT_SUCCESS
 #include <string.h> // strlen
+#include <unistd.h> // sleep
 
 #include "helper.h"
 #include "shared.h"
@@ -22,17 +23,7 @@ int main(int argc, char** argv) {
 	
 	allocateMemory();
 	
-	printf("%s\n", shmptr->strings[0]);
-	
-	char *strings[] = {"a", "a0A", "ab0", "", "aBbA", "ab"};
-	
-	int i = 0;
-	for (; i < 6; i++) {
-		char *string = strings[i];
-		printf("string: %s, isPalindrome: %s\n", string, isPalindrome(string) ? "true" : "false");
-	}
-	
-	while (true);
+	sleep(1);
 	
 	return EXIT_SUCCESS;
 }
