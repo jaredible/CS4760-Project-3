@@ -13,19 +13,22 @@
 #include <time.h> // time
 #include <unistd.h> // sleep
 
+#include "constant.h"
 #include "helper.h"
 #include "shared.h"
 
-bool isPalindrome(char*);
-void exitHandler(int);
+static bool isPalindrome(char*);
+static void exitHandler(int);
 
-int idx;
+static int idx;
 
 int main(int argc, char** argv) {
 	init(argc, argv);
 	
 	sigact(SIGTERM, &exitHandler);
 	sigact(SIGUSR1, &exitHandler);
+	
+//	printf("pid: %d, ppid: %d, pgid: %d\n", getpid(), getppid(), getpgid(getpid()));
 	
 	if (argc < 2) {
 		error("no argument supplied for index");
@@ -35,8 +38,8 @@ int main(int argc, char** argv) {
 	
 	srand(time(NULL) + idx);
 	
-	shmAllocate();
-	semAllocate();
+	shmAllocate(false);
+	semAllocate(false);
 	
 	char *string = getString(idx);
 	bool isp = isPalindrome(string);
@@ -59,7 +62,7 @@ int main(int argc, char** argv) {
 	return EXIT_SUCCESS;
 }
 
-bool isPalindrome(char *string) {
+static bool isPalindrome(char *string) {
 	int leftIndex = 0, rightIndex = strlen(string) - 1;
 	char leftChar, rightChar;
 	
@@ -76,7 +79,7 @@ bool isPalindrome(char *string) {
 	return true;
 }
 
-void exitHandler(int signum) {
+static void exitHandler(int signum) {
 	if (signum == SIGTERM || signum == SIGUSR1) {
 		char msg[BUFFER_LENGTH];
 		strfcpy(msg, "%s: Process %d exiting due to %s signal\n", ftime(), idx, signum == SIGUSR1 ? "timeout" : "interrupt");

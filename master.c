@@ -23,15 +23,15 @@
 #include "helper.h"
 #include "shared.h"
 
-void usage(int);
-int load(char*);
-void spawn(int);
-void timer(int);
-void exitHandler(int);
+static void usage(int);
+static int load(char*);
+static void spawn(int);
+static void timer(int);
+static void exitHandler(int);
 
-int n = TOTAL_CHILDREN_DEFAULT;
-int s = CONCURRENT_CHILDREN_DEFAULT;
-int t = TIMEOUT_DEFAULT;
+static int n = TOTAL_CHILDREN_DEFAULT;
+static int s = CONCURRENT_CHILDREN_DEFAULT;
+static int t = TIMEOUT_DEFAULT;
 
 int main(int argc, char** argv) {
 	init(argc, argv);
@@ -80,8 +80,8 @@ int main(int argc, char** argv) {
 		exit(EXIT_FAILURE);
 	}
 	
-	shmAllocate();
-	semAllocate();
+	shmAllocate(true);
+	semAllocate(true);
 	
 	int c = load(path);
 	
@@ -116,15 +116,15 @@ int main(int argc, char** argv) {
 	return ok ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-void usage(int status) {
+static void usage(int status) {
 	if (status != EXIT_SUCCESS) {
-		fprintf(stderr, "Try '%s -h' for more information\n", programName);
+		fprintf(stderr, "Try '%s -h' for more information\n", getProgramName());
 	} else {
 		printf("NAME\n");
-		printf("       %s - palindrome finder\n", programName);
+		printf("       %s - palindrome finder\n", getProgramName());
 		printf("USAGE\n");
-		printf("       %s -h\n", programName);
-		printf("       %s [-s x] [-t time] infile\n", programName);
+		printf("       %s -h\n", getProgramName());
+		printf("       %s [-s x] [-t time] infile\n", getProgramName());
 		printf("DESCRIPTION\n");
 		printf("       -h       : Print a help message or usage, and exit\n");
 		printf("       -s x     : Number of children allowed to exist concurrently (default 2)\n");
@@ -133,7 +133,7 @@ void usage(int status) {
 	exit(status);
 }
 
-int load(char *path) {
+static int load(char *path) {
 	FILE *fp;
 	if ((fp = fopen(path, "r")) == NULL) {
 		crash("fopen");
@@ -154,7 +154,7 @@ int load(char *path) {
 	return i;
 }
 
-void spawn(int index) {
+static void spawn(int index) {
 	pid_t pid = fork();
 	if (pid == -1) {
 		crash("fork");
@@ -171,7 +171,7 @@ void spawn(int index) {
 	}
 }
 
-void timer(int seconds) {
+static void timer(int seconds) {
 	sigact(SIGALRM, &exitHandler);
 	
 	struct itimerval itv;
@@ -184,12 +184,14 @@ void timer(int seconds) {
 	}
 }
 
-void exitHandler(int signum) {
+static void exitHandler(int signum) {
 	char msg[4096];
 	strfcpy(msg, "%s: Exiting due to %s signal\n", ftime(), signum == SIGALRM ? "timeout" : "interrupt");
 	fprintf(stderr, msg);
 	flog("output.log", msg);
-	killpg(getChildProcessGroupId(), signum == SIGALRM ? SIGUSR1 : SIGTERM);
+//	killpg(getChildProcessGroupId(), signum == SIGALRM ? SIGUSR1 : SIGTERM);
+	sigact(SIGTERM, SIG_IGN);
+	kill(-getpid(), signum == SIGALRM ? SIGUSR1 : SIGTERM);
 	while (wait(NULL) > 0);
 	shmRelease();
 	semRelease();

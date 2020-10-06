@@ -11,6 +11,7 @@
 #include <sys/types.h>
 #include <time.h>
 
+#include "constant.h"
 #include "helper.h"
 #include "shared.h"
 
@@ -22,7 +23,7 @@ void error(char *fmt, ...) {
 	vsnprintf(buf, BUFFER_LENGTH, fmt, args);
 	va_end(args);
 	
-	fprintf(stderr, "%s: %s\n", programName, buf);
+	fprintf(stderr, "%s: %s\n", getProgramName(), buf);
 }
 
 void sigact(int signum, void handler(int)) {
@@ -31,7 +32,7 @@ void sigact(int signum, void handler(int)) {
 		crash("sigemptyset");
 	}
 	sa.sa_handler = handler;
-	sa.sa_flags = SA_RESTART;
+	sa.sa_flags = 0;//SA_RESTART;
 	if (sigaction(signum, &sa, NULL) == -1) {
 		crash("sigaction");
 	}
@@ -81,7 +82,7 @@ void rtouch(char *path) {
 
 void crash(char *msg) {
 	char buf[BUFFER_LENGTH];
-	snprintf(buf, BUFFER_LENGTH, "%s: %s", programName, msg);
+	snprintf(buf, BUFFER_LENGTH, "%s: %s", getProgramName(), msg);
 	perror(buf);
 	exit(EXIT_FAILURE);
 }
