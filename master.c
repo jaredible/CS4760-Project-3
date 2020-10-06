@@ -36,7 +36,11 @@ int t = TIMEOUT_DEFAULT;
 int main(int argc, char** argv) {
 	init(argc, argv);
 	
-	sigAction(SIGINT, &exitHandler);
+	sigact(SIGINT, &exitHandler);
+	
+	rtouch("palin.out");
+	rtouch("nopalin.out");
+	rtouch("output.log");
 	
 	bool ok = true;
 	
@@ -81,7 +85,7 @@ int main(int argc, char** argv) {
 	
 	int c = load(path);
 	
-	n = MIN(c, CHILDREN_MAX);
+	n = MIN(c, CHILD_COUNT);
 	s = MIN(s, n);
 	
 	timer(t);
@@ -95,7 +99,7 @@ int main(int argc, char** argv) {
 	
 	while (j > 0) {
 		wait(NULL);
-		logOutput("output.log", "%s: Process %d finished\n", getFormattedTime(), n - j);
+		flog("output.log", "%s: Process %d finished\n", ftime(), n - j);
 		if (i < n) {
 			spawn(i++);
 		}
@@ -137,7 +141,7 @@ int load(char *path) {
 	size_t len = 0;
 	ssize_t read;
 	while (i < n && (read = getline(&line, &len, fp)) != -1) {
-		removeNewline(line);
+		crnl(line);
 		strcpy(shmptr->strings[i++], line);
 	}
 
@@ -153,7 +157,7 @@ void spawn(int index) {
 		perror("fork");
 		exit(EXIT_FAILURE);
 	} else if (pid == 0) {
-		logOutput("output.log", "%s: Process %d starting\n", getFormattedTime(), index);
+		flog("output.log", "%s: Process %d starting\n", ftime(), index);
 		char cindex[3];
 		sprintf(cindex, "%d", index);
 		execl("./palin", "palin", cindex, (char*) NULL);
@@ -162,7 +166,7 @@ void spawn(int index) {
 }
 
 void timer(int seconds) {
-	sigAction(SIGALRM, &exitHandler);
+	sigact(SIGALRM, &exitHandler);
 	
 	struct itimerval itv;
 	itv.it_value.tv_sec = seconds;
@@ -176,7 +180,7 @@ void timer(int seconds) {
 }
 
 void exitHandler(int signum) {
-	sigAction(SIGTERM, SIG_IGN);
+	sigact(SIGTERM, SIG_IGN);
 	kill(-getpid(), SIGTERM);
 	while (wait(NULL) > 0);
 	shmRelease();

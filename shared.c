@@ -18,7 +18,7 @@ void init(int argc, char **argv) {
 }
 
 void shmAllocate() {
-	if ((shmkey = ftok(KEY_PATHNAME, KEY_PROJID_SHM)) == -1) {
+	if ((shmkey = ftok(KEY_PATHNAME, KEY_PROJID)) == -1) {
 		perror("ftok");
 		exit(EXIT_FAILURE);
 	}
@@ -50,7 +50,7 @@ char *getString(int index) {
 }
 
 void semAllocate() {
-	if ((semkey = ftok(KEY_PATHNAME, KEY_PROJID_SEM)) == -1) {
+	if ((semkey = ftok(KEY_PATHNAME, KEY_PROJID)) == -1) {
 		perror("ftok");
 		exit(EXIT_FAILURE);
 	}

@@ -6,13 +6,13 @@
 #ifndef SHARED_H
 #define SHARED_H
 
-#include <sys/sem.h>
+#include <sys/sem.h> // sembuf
 #include <sys/types.h> // key_t
 
 #include "constant.h"
 
 struct shm {
-	char strings[20][256];
+	char strings[STRING_COUNT][STRING_LENGTH];
 };
 
 char *programName;

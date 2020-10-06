@@ -37,16 +37,16 @@ int main(int argc, char** argv) {
 	char *string = shmptr->strings[index];
 	bool is = isPalindrome(string);
 	
-	fprintf(stderr, "%s: Process %d wants to enter critical section\n", getFormattedTime(), index);
+	fprintf(stderr, "%s: Process %d wants to enter critical section\n", ftime(), index);
 	
 	semWait();
 	
 	/* Enter critical section */
 	
-	fprintf(stderr, "%s: Process %d in critical section\n", getFormattedTime(), index);
+	fprintf(stderr, "%s: Process %d in critical section\n", ftime(), index);
 	sleep(rand() % 3);
-	logOutput(is ? "palin.out" : "nopalin.out", "%s %d %d %s\n", getFormattedTime(), getpid(), index, string);
-	fprintf(stderr, "%s: Process %d exiting critical section\n", getFormattedTime(), index);
+	flog(is ? "palin.out" : "nopalin.out", "%s %d %d %s\n", ftime(), getpid(), index, string);
+	fprintf(stderr, "%s: Process %d exiting critical section\n", ftime(), index);
 	
 	/* Exit critical section */
 	

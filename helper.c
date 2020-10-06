@@ -25,7 +25,7 @@ void error(char *fmt, ...) {
 	fprintf(stderr, "%s: %s\n", programName, buf);
 }
 
-void sigAction(int signum, void handler(int)) {
+void sigact(int signum, void handler(int)) {
 	struct sigaction sa;
 	if (sigemptyset(&sa.sa_mask) == -1) {
 		perror("sigemptyset");
@@ -39,7 +39,7 @@ void sigAction(int signum, void handler(int)) {
 	}
 }
 
-void removeNewline(char *s) {
+void crnl(char *s) {
 	while (*s) {
 		if (*s == '\n') {
 			*s = '\0';
@@ -48,7 +48,7 @@ void removeNewline(char *s) {
 	}
 }
 
-void logOutput(char *path, char *fmt, ...) {
+void flog(char *path, char *fmt, ...) {
 	FILE *fp;
 	if ((fp = fopen(path, "a+")) == NULL) {
 		perror("fopen");
@@ -67,10 +67,19 @@ void logOutput(char *path, char *fmt, ...) {
 	fclose(fp);
 }
 
-char *getFormattedTime() {
+char *ftime() {
 	int n = 100;
 	char *ftime = malloc(n * sizeof(char));
 	time_t now = time(NULL);
 	strftime(ftime, n, "%H:%M:%S", localtime(&now));
 	return ftime;
+}
+
+void rtouch(char *path) {
+	FILE *fp;
+	if ((fp = fopen(path, "w")) == NULL) {
+		perror("fopen");
+		exit(EXIT_FAILURE);
+	}
+	fclose(fp);
 }

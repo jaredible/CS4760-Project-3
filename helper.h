@@ -5,9 +5,10 @@
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 
 void error(char*, ...);
-void sigAction(int, void(int));
-void removeNewline(char*);
-void logOutput(char*, char*, ...);
-char *getFormattedTime();
+void sigact(int, void(int));
+void crnl(char*);
+void flog(char*, char*, ...);
+char *ftime();
+void rtouch(char*);
 
 #endif
