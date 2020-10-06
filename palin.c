@@ -17,36 +17,40 @@
 #include "shared.h"
 
 bool isPalindrome(char*);
+void exitHandler(int);
+
+int idx;
 
 int main(int argc, char** argv) {
 	init(argc, argv);
 	
-	int index;
+	sigact(SIGTERM, &exitHandler);
+	sigact(SIGUSR1, &exitHandler);
 	
 	if (argc < 2) {
 		error("no argument supplied for index");
 	} else {
-		index = atoi(argv[1]);
+		idx = atoi(argv[1]);
 	}
 	
-	srand(time(NULL) + index);
+	srand(time(NULL) + idx);
 	
 	shmAllocate();
 	semAllocate();
 	
-	char *string = shmptr->strings[index];
-	bool is = isPalindrome(string);
+	char *string = getString(idx);
+	bool isp = isPalindrome(string);
 	
-	fprintf(stderr, "%s: Process %d wants to enter critical section\n", ftime(), index);
+	fprintf(stderr, "%s: Process %d wants to enter critical section\n", ftime(), idx);
 	
 	semWait();
 	
 	/* Enter critical section */
 	
-	fprintf(stderr, "%s: Process %d in critical section\n", ftime(), index);
+	fprintf(stderr, "%s: Process %d in critical section\n", ftime(), idx);
 	sleep(rand() % 3);
-	flog(is ? "palin.out" : "nopalin.out", "%s %d %d %s\n", ftime(), getpid(), index, string);
-	fprintf(stderr, "%s: Process %d exiting critical section\n", ftime(), index);
+	flog(isp ? "palin.out" : "nopalin.out", "%s %d %d %s\n", ftime(), getpid(), idx, string);
+	fprintf(stderr, "%s: Process %d exiting critical section\n", ftime(), idx);
 	
 	/* Exit critical section */
 	
@@ -70,4 +74,14 @@ bool isPalindrome(char *string) {
 	}
 	
 	return true;
+}
+
+void exitHandler(int signum) {
+	if (signum == SIGTERM || signum == SIGUSR1) {
+		char msg[BUFFER_LENGTH];
+		strfcpy(msg, "%s: Process %d exiting due to %s signal\n", ftime(), idx, signum == SIGUSR1 ? "timeout" : "interrupt");
+		fprintf(stderr, msg);
+		flog("output.log", msg);
+		exit(EXIT_FAILURE);
+	}
 }

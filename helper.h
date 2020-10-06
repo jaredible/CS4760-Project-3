@@ -10,5 +10,7 @@ void crnl(char*);
 void flog(char*, char*, ...);
 char *ftime();
 void rtouch(char*);
+void crash(char*);
+void strfcpy(char*, char*, ...);
 
 #endif

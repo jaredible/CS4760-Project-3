@@ -8,6 +8,8 @@
 
 #include <sys/stat.h>
 
+#define BUFFER_LENGTH 1024
+
 #define KEY_PATHNAME "."
 #define KEY_PROJID 'p'
 #define PERMS (S_IRUSR | S_IWUSR)

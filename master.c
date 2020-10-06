@@ -77,7 +77,7 @@ int main(int argc, char** argv) {
 	
 	if ((path = argv[optind]) == NULL) {
 		error("no argument supplied for infile");
-		usage(EXIT_FAILURE);
+		exit(EXIT_FAILURE);
 	}
 	
 	shmAllocate();
@@ -88,7 +88,11 @@ int main(int argc, char** argv) {
 	n = MIN(c, CHILD_COUNT);
 	s = MIN(s, n);
 	
-	timer(t);
+	if (t == 0) {
+		exit(EXIT_SUCCESS);
+	} else {
+		timer(t);
+	}
 	
 	int i = 0;
 	int j = n;
@@ -97,7 +101,7 @@ int main(int argc, char** argv) {
 		spawn(i++);
 	}
 	
-	while (j > 0) {
+	while (j > 0 && s > 0) {
 		wait(NULL);
 		flog("output.log", "%s: Process %d finished\n", ftime(), n - j);
 		if (i < n) {
@@ -132,8 +136,7 @@ void usage(int status) {
 int load(char *path) {
 	FILE *fp;
 	if ((fp = fopen(path, "r")) == NULL) {
-		perror("fopen");
-		exit(EXIT_FAILURE);
+		crash("fopen");
 	}
 	
 	int i = 0;
@@ -142,21 +145,24 @@ int load(char *path) {
 	ssize_t read;
 	while (i < n && (read = getline(&line, &len, fp)) != -1) {
 		crnl(line);
-		strcpy(shmptr->strings[i++], line);
+		setString(i++, line);
 	}
-
+	
 	fclose(fp);
 	if (line) free(line);
-
+	
 	return i;
 }
 
 void spawn(int index) {
 	pid_t pid = fork();
 	if (pid == -1) {
-		perror("fork");
-		exit(EXIT_FAILURE);
+		crash("fork");
 	} else if (pid == 0) {
+		if (index == 0) {
+			setChildProcessGroupId(getpid());
+		}
+		setpgid(0, getChildProcessGroupId());
 		flog("output.log", "%s: Process %d starting\n", ftime(), index);
 		char cindex[3];
 		sprintf(cindex, "%d", index);
@@ -174,14 +180,16 @@ void timer(int seconds) {
 	itv.it_interval.tv_sec = 0;
 	itv.it_interval.tv_usec = 0;
 	if (setitimer(ITIMER_REAL, &itv, NULL) == -1) {
-		perror("setitimer");
-		exit(EXIT_FAILURE);
+		crash("setitimer");
 	}
 }
 
 void exitHandler(int signum) {
-	sigact(SIGTERM, SIG_IGN);
-	kill(-getpid(), SIGTERM);
+	char msg[4096];
+	strfcpy(msg, "%s: Exiting due to %s signal\n", ftime(), signum == SIGALRM ? "timeout" : "interrupt");
+	fprintf(stderr, msg);
+	flog("output.log", msg);
+	killpg(getChildProcessGroupId(), signum == SIGALRM ? SIGUSR1 : SIGTERM);
 	while (wait(NULL) > 0);
 	shmRelease();
 	semRelease();

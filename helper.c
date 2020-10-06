@@ -7,6 +7,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <time.h>
 
@@ -14,12 +15,11 @@
 #include "shared.h"
 
 void error(char *fmt, ...) {
-	int n = 100;
-	char buf[n];
+	char buf[BUFFER_LENGTH];
 	va_list args;
 	
 	va_start(args, fmt);
-	vsnprintf(buf, n, fmt, args);
+	vsnprintf(buf, BUFFER_LENGTH, fmt, args);
 	va_end(args);
 	
 	fprintf(stderr, "%s: %s\n", programName, buf);
@@ -28,14 +28,12 @@ void error(char *fmt, ...) {
 void sigact(int signum, void handler(int)) {
 	struct sigaction sa;
 	if (sigemptyset(&sa.sa_mask) == -1) {
-		perror("sigemptyset");
-		exit(EXIT_FAILURE);
+		crash("sigemptyset");
 	}
 	sa.sa_handler = handler;
 	sa.sa_flags = SA_RESTART;
 	if (sigaction(signum, &sa, NULL) == -1) {
-		perror("sigaction");
-		exit(EXIT_FAILURE);
+		crash("sigaction");
 	}
 }
 
@@ -51,16 +49,14 @@ void crnl(char *s) {
 void flog(char *path, char *fmt, ...) {
 	FILE *fp;
 	if ((fp = fopen(path, "a+")) == NULL) {
-		perror("fopen");
-		exit(EXIT_FAILURE);
+		crash("fopen");
 	}
 	
-	int n = 1024;
-	char buf[n];
+	char buf[BUFFER_LENGTH];
 	va_list args;
 	
 	va_start(args, fmt);
-	vsnprintf(buf, n, fmt, args);
+	vsnprintf(buf, BUFFER_LENGTH, fmt, args);
 	va_end(args);
 	
 	fprintf(fp, buf);
@@ -78,8 +74,25 @@ char *ftime() {
 void rtouch(char *path) {
 	FILE *fp;
 	if ((fp = fopen(path, "w")) == NULL) {
-		perror("fopen");
-		exit(EXIT_FAILURE);
+		crash("fopen");
 	}
 	fclose(fp);
+}
+
+void crash(char *msg) {
+	char buf[BUFFER_LENGTH];
+	snprintf(buf, BUFFER_LENGTH, "%s: %s", programName, msg);
+	perror(buf);
+	exit(EXIT_FAILURE);
+}
+
+void strfcpy(char *src, char *fmt, ...) {
+	char buf[BUFFER_LENGTH];
+	va_list args;
+	
+	va_start(args, fmt);
+	vsnprintf(buf, BUFFER_LENGTH, fmt, args);
+	va_end(args);
+	
+	strncpy(src, buf, BUFFER_LENGTH);
 }
