@@ -13,7 +13,7 @@ Input:
 - A list of alphanumeric strings in a text file (infile).
 
 Output:
-- A file (output.log) containing information of the the program's execution.
+- A file (output.log) containing information about the program's execution.
 - A file (palin.out) containing palindromes (from the input file) and program information.
 - A file (nopalin.out) containing non-palindromes (from the input file) and program information.
 
