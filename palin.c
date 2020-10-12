@@ -77,13 +77,11 @@ static bool palindrome(char *string) {
 }
 
 static void handler(int signum) {
-	if (signum == SIGTERM || signum == SIGUSR1) {
-		semWait(2);
-		char msg[BUFFER_LENGTH];
-		strfcpy(msg, "%s: Process %d exiting due to %s signal\n", ftime(), cindex, signum == SIGUSR1 ? "timeout" : "interrupt");
-		fprintf(stderr, msg);
-		flog("output.log", msg);
-		semSignal(2);
-		exit(EXIT_FAILURE);
-	}
+	semWait(2);
+	char msg[BUFFER_LENGTH];
+	strfcpy(msg, "%s: Process %d exiting due to %s signal\n", ftime(), cindex, signum == SIGUSR1 ? "timeout" : "interrupt");
+	fprintf(stderr, msg);
+	flog("output.log", msg);
+	semSignal(2);
+	exit(EXIT_FAILURE);
 }
