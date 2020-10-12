@@ -37,4 +37,122 @@ Nice to know:
 - Only alphanumeric strings are allowed
 
 ##### CHANGELOG
+commit ae0fadc9250927299fbc7c43d8d8bd3c8ad8f919
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Mon Oct 12 13:20:25 2020 -0500
 
+    Updated README
+
+commit 5fead15303cecb74e18cb33e41a44684f387264a
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Mon Oct 12 13:18:40 2020 -0500
+
+    Fixed typo
+
+commit e00812496218d82f41b22147b5491096e235181e
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Mon Oct 12 13:17:06 2020 -0500
+
+    Revamped and fixed
+
+commit 43cc7c6ed636ba3f4e76c82705183e00171380ca
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Tue Oct 6 16:00:11 2020 -0500
+
+    Improved modularity
+
+commit 4e74011f5a65c9443df248852d4071a4ef0680b0
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Mon Oct 5 23:56:17 2020 -0500
+
+    Polished logic
+
+commit 92be323b56f75b103e5754864d846d79b0b04b0a
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Mon Oct 5 22:42:53 2020 -0500
+
+    Refactored small things
+
+commit 53bdc5120ab4449c8caad12f84d615dccdd5a3bd
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Mon Oct 5 15:27:08 2020 -0500
+
+    Updated execution instruction
+
+commit 55a08a24b0d9f36c465465bc8d2741caed63161a
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Mon Oct 5 15:25:26 2020 -0500
+
+    Removed strings.in
+
+commit 11b72720e81152eaa46bdf1d3516c372a35227d6
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Mon Oct 5 15:24:48 2020 -0500
+
+    Updated README
+
+commit 5fdcef716114dbaeaad22739ba90ce79a4bf29de
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Mon Oct 5 15:23:16 2020 -0500
+
+    Updated semaphore release implementation
+
+commit 76dfca21fae9df4b66c76c5b69a45738f9921d66
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Mon Oct 5 15:13:24 2020 -0500
+
+    Implemented mutual exclusion using semaphore
+
+commit a2a0b70bc7f89d854fb2e6fe01f158815a6356fc
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Mon Oct 5 01:35:47 2020 -0500
+
+    Implemented loading input file into shared memory
+
+commit 23e50f8870790e3e522912cd32f44334561f70e7
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Mon Oct 5 01:06:48 2020 -0500
+
+    Implemented concurrent child-spawning
+
+commit e0b0d7c002187ddfe3599e89e99b6fd4cf0a797c
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Mon Oct 5 00:52:37 2020 -0500
+
+    Implemented signal handlers
+
+commit a8dc1f849eea177d7e2003deeb7bebde6b66436c
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Sun Oct 4 22:45:21 2020 -0500
+
+    Implemented child-spawning
+
+commit 93ac330c29aa894fdb24d953140efcab2cbf93b4
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Sun Oct 4 20:34:30 2020 -0500
+
+    Implemented shared-memory usage
+
+commit f333ff21e5eba0c0e8345caf6d21a8ab6031caa5
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Sun Oct 4 19:54:34 2020 -0500
+
+    Implemented palindrome-checking function
+
+commit e25daa330e888799744221348b1b47f2f2ce9c95
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Sun Oct 4 19:31:37 2020 -0500
+
+    Properly getting options
+
+commit 41027c2ac94c7ac8ca57385d00ff8e849479128f
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Sun Oct 4 15:42:14 2020 -0500
+
+    Makefile now compiles both source files
+
+commit 291cae22a1c2ba3754a38c48f6141bb2f70fc4b0
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Sun Oct 4 15:32:11 2020 -0500
+
+    Created files
