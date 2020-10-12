@@ -8,3 +8,14 @@ ab0bA
 abbbB
 ab00bA
 abbbbB
+ab000bA
+abbbbbB
+ab0000bA
+abbbbbbB
+ab00000bA
+abbbbbbbB
+ab000000bA
+abbbbbbbbB
+ab0000000bA
+abbbbbbbbbB
+this should not be processed
