@@ -34,6 +34,7 @@ Nice to know:
 ##### ADJUSTMENTS
 - Didn't implement a shared clock (Approved)
 - Added new files to improve modularity
+- Only alphanumeric strings are allowed
 
 ##### CHANGELOG
 
