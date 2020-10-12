@@ -17,7 +17,7 @@
 #include <sys/time.h> // itimerval, setitimer
 #include <sys/types.h> // pid_t
 #include <sys/wait.h> // wait
-#include <unistd.h> // execl, fork
+#include <unistd.h> // F_OK, access, execl, fork
 
 #include "constant.h"
 #include "helper.h"
@@ -36,12 +36,6 @@ static int t = TIMEOUT_DEFAULT;
 
 int main(int argc, char** argv) {
 	init(argc, argv);
-	
-	sigact(SIGINT, &handler);
-	
-	rtouch("palin.out");
-	rtouch("nopalin.out");
-	rtouch("output.log");
 	
 	bool ok = true;
 	
@@ -70,14 +64,23 @@ int main(int argc, char** argv) {
 		}
 	}
 	
-	if (!ok) usage(EXIT_FAILURE);
-	
-	char *path;
+	char *path = NULL;
 	
 	if ((path = argv[optind]) == NULL) {
 		error("no argument supplied for infile");
-		exit(EXIT_FAILURE);
+		ok = false;
+	} else if (access(path, F_OK) == -1) {
+		error("infile does not exist '%s'", path);
+		ok = false;
 	}
+	
+	if (!ok) usage(EXIT_FAILURE);
+	
+	sigact(SIGINT, &handler);
+	
+	rtouch("output.log");
+	rtouch("palin.out");
+	rtouch("nopalin.out");
 	
 	shmAllocate(true);
 	semAllocate(true);
@@ -89,13 +92,17 @@ int main(int argc, char** argv) {
 	
 	int c = load(path);
 	
-	n = MIN(c, CHILD_COUNT);
-	s = MIN(s, n);
+	strfcpy(msg, "%s: Processing %d strings\n", ftime(), c);
+	fprintf(stderr, msg);
+	flog("output.log", msg);
 	
 	if (t == 0) {
 		finalize(true);
 		exit(EXIT_SUCCESS);
 	} else timer(t);
+	
+	n = MIN(c, CHILD_COUNT);
+	s = MIN(s, n);
 	
 	int i = 0;
 	int j = n;
