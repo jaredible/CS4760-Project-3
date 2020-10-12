@@ -1,6 +1,6 @@
 /*
- * Author: Jared Diehl
- * Date: October 16, 2020
+ * helper.c 10/16/20
+ * Jared Diehl (jmddnb@umsystem.edu)
  */
 
 #include <signal.h>
@@ -11,47 +11,30 @@
 #include <sys/types.h>
 #include <time.h>
 
-#include "constant.h"
 #include "helper.h"
-#include "shared.h"
-
-void error(char *fmt, ...) {
-	char buf[BUFFER_LENGTH];
-	va_list args;
-	
-	va_start(args, fmt);
-	vsnprintf(buf, BUFFER_LENGTH, fmt, args);
-	va_end(args);
-	
-	fprintf(stderr, "%s: %s\n", getProgramName(), buf);
-}
 
 void sigact(int signum, void handler(int)) {
 	struct sigaction sa;
-	if (sigemptyset(&sa.sa_mask) == -1) {
+	if (sigemptyset(&sa.sa_mask) == -1)
 		crash("sigemptyset");
-	}
 	sa.sa_handler = handler;
-	sa.sa_flags = 0;//SA_RESTART;
-	if (sigaction(signum, &sa, NULL) == -1) {
+	sa.sa_flags = 0;
+	if (sigaction(signum, &sa, NULL) == -1)
 		crash("sigaction");
-	}
 }
 
 void crnl(char *s) {
 	while (*s) {
-		if (*s == '\n') {
+		if (*s == '\n')
 			*s = '\0';
-		}
 		s++;
 	}
 }
 
 void flog(char *path, char *fmt, ...) {
 	FILE *fp;
-	if ((fp = fopen(path, "a+")) == NULL) {
+	if ((fp = fopen(path, "a+")) == NULL)
 		crash("fopen");
-	}
 	
 	char buf[BUFFER_LENGTH];
 	va_list args;
@@ -74,17 +57,10 @@ char *ftime() {
 
 void rtouch(char *path) {
 	FILE *fp;
-	if ((fp = fopen(path, "w")) == NULL) {
+	if ((fp = fopen(path, "w")) == NULL)
 		crash("fopen");
-	}
-	fclose(fp);
-}
-
-void crash(char *msg) {
-	char buf[BUFFER_LENGTH];
-	snprintf(buf, BUFFER_LENGTH, "%s: %s", getProgramName(), msg);
-	perror(buf);
-	exit(EXIT_FAILURE);
+	if (fclose(fp) == EOF)
+		crash("fclose");
 }
 
 void strfcpy(char *src, char *fmt, ...) {

@@ -1,6 +1,6 @@
 /*
- * Author: Jared Diehl
- * Date: October 4, 2020
+ * palin.c 10/16/20
+ * Jared Diehl (jmddnb@umsystem.edu)
  */
 
 #include <ctype.h> // tolower
@@ -17,74 +17,73 @@
 #include "helper.h"
 #include "shared.h"
 
-static bool isPalindrome(char*);
-static void exitHandler(int);
+static bool palindrome(char*);
+static void handler(int);
 
 static int idx;
 
 int main(int argc, char** argv) {
 	init(argc, argv);
 	
-	sigact(SIGTERM, &exitHandler);
-	sigact(SIGUSR1, &exitHandler);
+	sigact(SIGTERM, &handler);
+	sigact(SIGUSR1, &handler);
 	
-//	printf("pid: %d, ppid: %d, pgid: %d\n", getpid(), getppid(), getpgid(getpid()));
+	if (argc < 2) error("no argument supplied for index");
+	else idx = atoi(argv[1]);
 	
-	if (argc < 2) {
-		error("no argument supplied for index");
-	} else {
-		idx = atoi(argv[1]);
-	}
-	
-	srand(time(NULL) + idx);
+	srand(time(NULL) + getpid() * idx);
 	
 	shmAllocate(false);
 	semAllocate(false);
 	
 	char *string = getString(idx);
-	bool isp = isPalindrome(string);
+	bool is = palindrome(string);
+
+	if (DEBUG) printf("%s: Process %d found that %s is %sa palindrome\n", ftime(), idx, string, is ? "" : "not ");
 	
 	fprintf(stderr, "%s: Process %d wants to enter critical section\n", ftime(), idx);
 	
-	semWait();
+	semWait(is ? 0 : 1);
 	
 	/* Enter critical section */
 	
 	fprintf(stderr, "%s: Process %d in critical section\n", ftime(), idx);
 	sleep(rand() % 3);
-	flog(isp ? "palin.out" : "nopalin.out", "%s %d %d %s\n", ftime(), getpid(), idx, string);
+	flog(is ? "palin.out" : "nopalin.out", "%s %d %d %s\n", ftime(), getpid(), idx, string);
 	fprintf(stderr, "%s: Process %d exiting critical section\n", ftime(), idx);
 	
 	/* Exit critical section */
 	
-	semSignal();
+	semSignal(is ? 0 : 1);
 	
 	return EXIT_SUCCESS;
 }
 
-static bool isPalindrome(char *string) {
-	int leftIndex = 0, rightIndex = strlen(string) - 1;
-	char leftChar, rightChar;
+
+static bool palindrome(char *string) {
+	int li, ri;
+	char lc, rc;
 	
-	while (rightIndex > leftIndex) {
-		leftChar = tolower(string[leftIndex]);
-		rightChar = tolower(string[rightIndex]);
+	for (li = 0, ri = strlen(string) - 1; ri > li; li++, ri--) {
+		while (!isalnum((lc = tolower(string[li]))))
+			li++;
+		while (!isalnum((rc = tolower(string[ri]))))
+			ri--;
 		
-		if (leftChar != rightChar) return false;
-		
-		leftIndex++;
-		rightIndex--;
+		if (lc != rc) return false;
 	}
 	
 	return true;
 }
 
-static void exitHandler(int signum) {
+static void handler(int signum) {
 	if (signum == SIGTERM || signum == SIGUSR1) {
+		semWait(2);
 		char msg[BUFFER_LENGTH];
 		strfcpy(msg, "%s: Process %d exiting due to %s signal\n", ftime(), idx, signum == SIGUSR1 ? "timeout" : "interrupt");
 		fprintf(stderr, msg);
 		flog("output.log", msg);
+		semSignal(2);
 		exit(EXIT_FAILURE);
 	}
 }

@@ -5,9 +5,6 @@ palin
 # Objects
 *.o
 
-# Tests
-*.in
-
 # Logs
 *.out
 *.log

@@ -1,14 +1,15 @@
 /*
- * Author: Jared Diehl
- * Date: October 4, 2020
+ * constant.h 10/16/20
+ * Jared Diehl (jmddnb@umsystem.edu)
  */
 
 #ifndef CONSTANT_H
 #define CONSTANT_H
 
 #include <sys/stat.h>
+#include <stdbool.h>
 
-#define BUFFER_LENGTH 1024
+#define DEBUG true
 
 #define KEY_PATHNAME "."
 #define KEY_PROJID 'p'

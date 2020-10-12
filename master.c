@@ -1,6 +1,6 @@
 /*
- * Author: Jared Diehl
- * Date: October, 4, 2020
+ * master.c 10/16/20
+ * Jared Diehl (jmddnb@umsystem.edu)
  */
 
 #include <ctype.h> // isdigit
@@ -27,7 +27,8 @@ static void usage(int);
 static int load(char*);
 static void spawn(int);
 static void timer(int);
-static void exitHandler(int);
+static void handler(int);
+static void finalize(bool);
 
 static int n = TOTAL_CHILDREN_DEFAULT;
 static int s = CONCURRENT_CHILDREN_DEFAULT;
@@ -36,7 +37,7 @@ static int t = TIMEOUT_DEFAULT;
 int main(int argc, char** argv) {
 	init(argc, argv);
 	
-	sigact(SIGINT, &exitHandler);
+	sigact(SIGINT, &handler);
 	
 	rtouch("palin.out");
 	rtouch("nopalin.out");
@@ -69,9 +70,7 @@ int main(int argc, char** argv) {
 		}
 	}
 	
-	if (!ok) {
-		usage(EXIT_FAILURE);
-	}
+	if (!ok) usage(EXIT_FAILURE);
 	
 	char *path;
 	
@@ -83,43 +82,37 @@ int main(int argc, char** argv) {
 	shmAllocate(true);
 	semAllocate(true);
 	
+	flog("output.log", "%s: Starting with options: s=%d, t=%d\n", ftime(), s, t);
+	
 	int c = load(path);
 	
 	n = MIN(c, CHILD_COUNT);
 	s = MIN(s, n);
 	
-	if (t == 0) {
-		exit(EXIT_SUCCESS);
-	} else {
-		timer(t);
-	}
+	if (t == 0) finalize(true);
+	else timer(t);
 	
 	int i = 0;
 	int j = n;
 	
-	while (i < s) {
+	while (i < s)
 		spawn(i++);
-	}
 	
 	while (j > 0 && s > 0) {
 		wait(NULL);
 		flog("output.log", "%s: Process %d finished\n", ftime(), n - j);
-		if (i < n) {
-			spawn(i++);
-		}
+		if (i < n) spawn(i++);
 		j--;
 	}
 	
-	shmRelease();
-	semRelease();
+	finalize(true);
 	
 	return ok ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 static void usage(int status) {
-	if (status != EXIT_SUCCESS) {
-		fprintf(stderr, "Try '%s -h' for more information\n", getProgramName());
-	} else {
+	if (status != EXIT_SUCCESS) fprintf(stderr, "Try '%s -h' for more information\n", getProgramName());
+	else {
 		printf("NAME\n");
 		printf("       %s - palindrome finder\n", getProgramName());
 		printf("USAGE\n");
@@ -135,9 +128,7 @@ static void usage(int status) {
 
 static int load(char *path) {
 	FILE *fp;
-	if ((fp = fopen(path, "r")) == NULL) {
-		crash("fopen");
-	}
+	if ((fp = fopen(path, "r")) == NULL) crash("fopen");
 	
 	int i = 0;
 	char *line;
@@ -148,21 +139,18 @@ static int load(char *path) {
 		setString(i++, line);
 	}
 	
-	fclose(fp);
+	if (fclose(fp) == EOF) crash("fclose");
 	if (line) free(line);
 	
 	return i;
 }
 
 static void spawn(int index) {
-	pid_t pid = fork();
-	if (pid == -1) {
-		crash("fork");
-	} else if (pid == 0) {
-		if (index == 0) {
-			setChildProcessGroupId(getpid());
-		}
-		setpgid(0, getChildProcessGroupId());
+	int cpid = fork();
+	if (cpid == -1) crash("fork");
+	else if (cpid == 0) {
+		if (index == 0) setCpgid(getpid());
+		setpgid(0, getCpgid());
 		flog("output.log", "%s: Process %d starting\n", ftime(), index);
 		char cindex[3];
 		sprintf(cindex, "%d", index);
@@ -172,28 +160,32 @@ static void spawn(int index) {
 }
 
 static void timer(int seconds) {
-	sigact(SIGALRM, &exitHandler);
+	sigact(SIGALRM, &handler);
 	
 	struct itimerval itv;
 	itv.it_value.tv_sec = seconds;
 	itv.it_value.tv_usec = 0;
 	itv.it_interval.tv_sec = 0;
 	itv.it_interval.tv_usec = 0;
-	if (setitimer(ITIMER_REAL, &itv, NULL) == -1) {
-		crash("setitimer");
-	}
+	if (setitimer(ITIMER_REAL, &itv, NULL) == -1) crash("setitimer");
 }
 
-static void exitHandler(int signum) {
+static void handler(int signum) {
 	char msg[4096];
-	strfcpy(msg, "%s: Exiting due to %s signal\n", ftime(), signum == SIGALRM ? "timeout" : "interrupt");
+	strfcpy(msg, "%s: Signal %s caught\n", ftime(), signum == SIGALRM ? "timeout" : "interrupt");
 	fprintf(stderr, msg);
 	flog("output.log", msg);
-//	killpg(getChildProcessGroupId(), signum == SIGALRM ? SIGUSR1 : SIGTERM);
-	sigact(SIGTERM, SIG_IGN);
-	kill(-getpid(), signum == SIGALRM ? SIGUSR1 : SIGTERM);
+	killpg(getCpgid(), signum == SIGALRM ? SIGUSR1 : SIGTERM);
 	while (wait(NULL) > 0);
+	finalize(false);
+	exit(EXIT_SUCCESS);
+}
+
+static void finalize(bool finished) {
+	char msg[4096];
+	strfcpy(msg, "%s: Exiting %sfinished\n", ftime(), finished ? "" : "un");
+	fprintf(stderr, msg);
+	flog("output.log", msg);
 	shmRelease();
 	semRelease();
-	exit(EXIT_SUCCESS);
 }

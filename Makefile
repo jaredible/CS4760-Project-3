@@ -27,37 +27,6 @@ $(PALIN): $(PALIN_OBJ) $(OBJ)
 %.o: %.c $(SRC) $(STANDARD)
 	$(CC) $(CFLAGS) -c $*.c -o $*.o
 
-strings.in:
-	echo a > strings.in
-	echo ab >> strings.in
-	echo aba >> strings.in
-	echo abb >> strings.in
-	echo abba >> strings.in
-	echo 0 >> strings.in
-	echo 01 >> strings.in
-	echo 010 >> strings.in
-	echo 011 >> strings.in
-	echo 0110 >> strings.in
-	echo z >> strings.in
-	echo zz >> strings.in
-	echo zzz >> strings.in
-	echo zzzz >> strings.in
-	echo zzzzz >> strings.in
-	echo zzzzzz >> strings.in
-	echo zzzzzzz >> strings.in
-	echo zzzzzzzz >> strings.in
-	echo zzzzzzzzz >> strings.in
-	echo zzzzzzzzzz >> strings.in
-	echo "this shouldn't be checked" >> strings.in
-
-test: all strings.in
-	./master -s 4 -t 4 strings.in
-	cat palin.out; echo; cat nopalin.out; echo; cat output.log
-	rm palin.out nopalin.out output.log
-	echo
-	./master -s 3 -t 2 strings.in
-	cat palin.out; echo; cat nopalin.out; echo; cat output.log
-
 .PHONY: clean
 clean:
-	/bin/rm -f $(OUTPUT) *.o *.in *.out *.log
+	/bin/rm -f $(OUTPUT) *.o *.out *.log
