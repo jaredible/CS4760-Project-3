@@ -9,7 +9,7 @@
 #include <sys/stat.h>
 #include <stdbool.h>
 
-#define DEBUG true
+#define DEBUG false
 
 #define KEY_PATHNAME "."
 #define KEY_PROJID 'p'

@@ -82,15 +82,20 @@ int main(int argc, char** argv) {
 	shmAllocate(true);
 	semAllocate(true);
 	
-	flog("output.log", "%s: Starting with options: s=%d, t=%d\n", ftime(), s, t);
+	char msg[BUFFER_LENGTH];
+	strfcpy(msg, "%s: Starting with options: s=%d, t=%d\n", ftime(), s, t);
+	fprintf(stderr, msg);
+	flog("output.log", msg);
 	
 	int c = load(path);
 	
 	n = MIN(c, CHILD_COUNT);
 	s = MIN(s, n);
 	
-	if (t == 0) finalize(true);
-	else timer(t);
+	if (t == 0) {
+		finalize(true);
+		exit(EXIT_SUCCESS);
+	} else timer(t);
 	
 	int i = 0;
 	int j = n;
@@ -98,9 +103,11 @@ int main(int argc, char** argv) {
 	while (i < s)
 		spawn(i++);
 	
+	int status;
+	
 	while (j > 0 && s > 0) {
-		wait(NULL);
-		flog("output.log", "%s: Process %d finished\n", ftime(), n - j);
+		wait(&status);
+		if (WIFEXITED(status)) flog("output.log", "%s: Process %d finished\n", ftime(), WEXITSTATUS(status));
 		if (i < n) spawn(i++);
 		j--;
 	}
@@ -171,7 +178,7 @@ static void timer(int seconds) {
 }
 
 static void handler(int signum) {
-	char msg[4096];
+	char msg[BUFFER_LENGTH];
 	strfcpy(msg, "%s: Signal %s caught\n", ftime(), signum == SIGALRM ? "timeout" : "interrupt");
 	fprintf(stderr, msg);
 	flog("output.log", msg);
@@ -182,7 +189,7 @@ static void handler(int signum) {
 }
 
 static void finalize(bool finished) {
-	char msg[4096];
+	char msg[BUFFER_LENGTH];
 	strfcpy(msg, "%s: Exiting %sfinished\n", ftime(), finished ? "" : "un");
 	fprintf(stderr, msg);
 	flog("output.log", msg);
