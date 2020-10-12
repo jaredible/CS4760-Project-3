@@ -74,8 +74,10 @@ void shmAllocate(bool init) {
 
 void shmRelease() {
 	if (shmptr != NULL && shmdt(shmptr) == -1) crash("shmdt");
-	if (shmid > 0 && shmctl(shmid, IPC_RMID, NULL) == -1) crash("shmctl");
-	flog("output.log", "%s: Shared memory released\n", ftime());
+	if (shmid > 0) {
+		if (shmctl(shmid, IPC_RMID, NULL) == -1) crash("shmctl");
+		flog("output.log", "%s: Shared memory released\n", ftime());
+	}
 }
 
 char *getString(int index) {
@@ -102,8 +104,10 @@ void semAllocate(bool init) {
 }
 
 void semRelease() {
-	if (semctl(semid, 0, IPC_RMID) == -1) crash("semctl");
-	flog("output.log", "%s: Semaphore released\n", ftime());
+	if (semid > 0) {
+		if (semctl(semid, 0, IPC_RMID) == -1) crash("semctl");
+		flog("output.log", "%s: Semaphore released\n", ftime());
+	}
 }
 
 void semWait(int num) {
