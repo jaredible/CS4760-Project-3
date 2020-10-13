@@ -33,9 +33,12 @@ Nice to know:
 
 ##### ADJUSTMENTS
 - Didn't implement a shared clock (Approved)
-- Added new files to improve modularity
+- Added new files to improve modularity (Approved)
 - Only alphanumeric characters are allowed in the input file
 - To improve concurrency, used more than 1 semaphore
+
+##### ISSUES
+- A sleeping process doesn't invoke its signal handler
 
 ##### CHANGELOG
 commit ae0fadc9250927299fbc7c43d8d8bd3c8ad8f919
