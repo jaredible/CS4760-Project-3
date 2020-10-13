@@ -3,7 +3,9 @@
  * Jared Diehl (jmddnb@umsystem.edu)
  * -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
  * This program creates palin processes
- * to process the input file's strings.
+ * to process a file's strings to check
+ * if they're palindromes, and outputs
+ * the results.
  */
 
 /* Standard library header files */
@@ -29,7 +31,7 @@
 #include "shared.h"
 
 /* Definitions */
-#define OPTIONS "hs:t:"
+#define OPTIONS "hn:s:t:"
 
 /* Private function prototypes */
 static void usage(int);
@@ -60,6 +62,13 @@ int main(int argc, char **argv) {
 			case 'h':
 				/* Display usage information */
 				usage(EXIT_SUCCESS);
+			case 'n':
+				/* Ensure option n is valid and within range */
+				if (!isdigit(*optarg) || (n = atoi(optarg)) < 0) {
+					error("invalid max total processes '%s'", optarg);
+					ok = false;
+				}
+				break;
 			case 's':
 				/* Ensure option s is valid and within range */
 				if (!isdigit(*optarg) || (s = atoi(optarg)) < 0) {
@@ -94,7 +103,7 @@ int main(int argc, char **argv) {
 	if (!ok) usage(EXIT_FAILURE);
 	
 	/* Register Ctrl+C signal handler */
-	sigact(SIGINT, &handler);
+	sigact(SIGINT, handler);
 	
 	/* Initialize output files */
 	rtouch("output.log");
@@ -166,9 +175,10 @@ static void usage(int status) {
 		printf("       %s - palindrome finder\n", getProgramName());
 		printf("USAGE\n");
 		printf("       %s -h\n", getProgramName());
-		printf("       %s [-s x] [-t time] infile\n", getProgramName());
+		printf("       %s [-n x] [-s x] [-t time] infile\n", getProgramName());
 		printf("DESCRIPTION\n");
 		printf("       -h       : Print a help message or usage, and exit\n");
+		printf("       -n x     : Maximum total of child process (default 4)\n");
 		printf("       -s x     : Number of children allowed to exist concurrently (default 2)\n");
 		printf("       -t time  : Time, in seconds, after which the program will terminate (default 100)\n");
 	}
@@ -230,11 +240,11 @@ static void spawn(int index) {
 
 /* timer(seconds)
  * --------------
- * Sets up the timer signal handler.
+ * Sets up a timer with a timeout given by seconds.
  */
 static void timer(int seconds) {
 	/* Register timer signal handler */
-	sigact(SIGALRM, &handler);
+	sigact(SIGALRM, handler);
 	
 	/* Initialize real timer */
 	struct itimerval itv;
