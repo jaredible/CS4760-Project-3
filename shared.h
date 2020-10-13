@@ -21,7 +21,7 @@ void setString(int, char*);
 void setCpgid(pid_t);
 pid_t getCpgid();
 
-void semAllocate(bool);
+void semAllocate(bool, ...);
 void semRelease();
 void semWait(int);
 void semSignal(int);

@@ -28,9 +28,7 @@ static struct shm *shmptr = NULL;
 
 static key_t semkey;
 static int semid;
-
-//static struct sembuf p = { 0, -1, SEM_UNDO };
-//static struct sembuf v = { 0, +1, SEM_UNDO };
+static struct sembuf sop;
 
 void init(int argc, char **argv) {
 	programName = argv[0];
@@ -96,11 +94,21 @@ pid_t getCpgid() {
 	return shmptr->cpgid;
 }
 
-void semAllocate(bool init) {
+void semAllocate(bool init, ...) {
+	va_list args;
+	int num = -1;
+	va_start(args, init);
+	num = va_arg(args, int);
+	va_end(args);
+	
 	if ((semkey = ftok(KEY_PATHNAME, KEY_PROJID)) == -1) crash("ftok");
-	if ((semid = semget(semkey, 3, PERMS | (init ? IPC_EXCL | IPC_CREAT : 0))) == -1) crash("semget");
-	if (init && (semctl(semid, 0, SETVAL, 1) == -1 || semctl(semid, 1, SETVAL, 1) == -1 || semctl(semid, 2, SETVAL, 1) == -1)) crash("semctl");
-	if (init) flog("output.log", "%s: Semaphore allocated\n", ftime());
+	if ((semid = semget(semkey, init ? num : 0, PERMS | (init ? IPC_EXCL | IPC_CREAT : 0))) == -1) crash("semget");
+	if (init) {
+		int i;
+		for (i = 0; i < num; i++)
+			if (semctl(semid, i, SETVAL, 1) == -1) crash("semctl");
+		flog("output.log", "%s: Semaphore allocated\n", ftime());
+	}
 }
 
 void semRelease() {
@@ -111,11 +119,15 @@ void semRelease() {
 }
 
 void semWait(int num) {
-	struct sembuf p2 = { num, -1, SEM_UNDO };
-	if (semop(semid, &p2, 1) == -1) crash("semop");
+	sop.sem_num = num;
+	sop.sem_op = -1;
+	sop.sem_flg = SEM_UNDO;
+	if (semop(semid, &sop, 1) == -1) crash("semop");
 }
 
 void semSignal(int num) {
-	struct sembuf v2 = { num, +1, SEM_UNDO };
-	if (semop(semid, &v2, 1) == -1) crash("semop");
+	sop.sem_num = num;
+	sop.sem_op = 1;
+	sop.sem_flg = SEM_UNDO;
+	if (semop(semid, &sop, 1) == -1) crash("semop");
 }
