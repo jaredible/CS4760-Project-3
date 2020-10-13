@@ -34,7 +34,8 @@ Nice to know:
 ##### ADJUSTMENTS
 - Didn't implement a shared clock (Approved)
 - Added new files to improve modularity
-- Only alphanumeric strings are allowed
+- Only alphanumeric characters are allowed in the input file
+- To improve concurrency, used more than 1 semaphore
 
 ##### CHANGELOG
 commit ae0fadc9250927299fbc7c43d8d8bd3c8ad8f919
