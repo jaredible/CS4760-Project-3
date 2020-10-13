@@ -96,9 +96,8 @@ pid_t getCpgid() {
 
 void semAllocate(bool init, ...) {
 	va_list args;
-	int num = -1;
 	va_start(args, init);
-	num = va_arg(args, int);
+	int num = va_arg(args, int);
 	va_end(args);
 	
 	if ((semkey = ftok(KEY_PATHNAME, KEY_PROJID)) == -1) crash("ftok");
@@ -107,27 +106,27 @@ void semAllocate(bool init, ...) {
 		int i;
 		for (i = 0; i < num; i++)
 			if (semctl(semid, i, SETVAL, 1) == -1) crash("semctl");
-		flog("output.log", "%s: Semaphore allocated\n", ftime());
+		flog("output.log", "%s: Semaphore(s) allocated\n", ftime());
 	}
 }
 
 void semRelease() {
 	if (semid > 0) {
 		if (semctl(semid, 0, IPC_RMID) == -1) crash("semctl");
-		flog("output.log", "%s: Semaphore released\n", ftime());
+		flog("output.log", "%s: Semaphore(s) released\n", ftime());
 	}
 }
 
 void semWait(int num) {
 	sop.sem_num = num;
 	sop.sem_op = -1;
-	sop.sem_flg = SEM_UNDO;
+	sop.sem_flg = 0;
 	if (semop(semid, &sop, 1) == -1) crash("semop");
 }
 
 void semSignal(int num) {
 	sop.sem_num = num;
 	sop.sem_op = 1;
-	sop.sem_flg = SEM_UNDO;
+	sop.sem_flg = 0;
 	if (semop(semid, &sop, 1) == -1) crash("semop");
 }

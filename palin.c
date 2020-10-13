@@ -30,8 +30,8 @@ int main(int argc, char **argv) {
 	init(argc, argv);
 	
 	/* Register signal handlers */
-	sigact(SIGTERM, &handler);
-	sigact(SIGUSR1, &handler);
+	sigact(SIGTERM, handler);
+	sigact(SIGUSR1, handler);
 	
 	/* Check and get option */
 	if (argc < 2) error("no argument supplied for index");
@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
 	/* Display that this process wants to enter the critical section */
 	fprintf(stderr, "%s: Process %d wants to enter critical section\n", ftime(), cindex);
 	
-	/* Lock semaphore */
+	/* Locks a semaphore */
 	semWait(is ? 0 : 1);
 	
 	/* Enter critical section */
@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
 	
 	/* Exit critical section */
 	
-	/* Unlock semaphore */
+	/* Unlocks a semaphore */
 	semSignal(is ? 0 : 1);
 	
 	/* Exit with the process' index */
@@ -104,12 +104,12 @@ static bool palindrome(char *string) {
  */
 static void handler(int signal) {
 	/* Output the caught status and exit */
-	semWait(2);
+	//semWait(2);
 	char msg[BUFFER_LENGTH];
 	sprintf(msg, "%s: Process %d exiting due to %s signal\n", ftime(), cindex, signal == SIGUSR1 ? "timeout" : "interrupt");
 	fprintf(stderr, msg);
 	flog("output.log", msg);
-	semSignal(2);
+	//semSignal(2);
 
 	exit(EXIT_FAILURE);
 }
