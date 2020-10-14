@@ -116,7 +116,7 @@ int main(int argc, char **argv) {
 	
 	/* Output the options */
 	char msg[BUFFER_LENGTH];
-	sprintf(msg, "%s: Starting with options: s=%d, t=%d\n", ftime(), s, t);
+	sprintf(msg, "%s: Starting with options: n=%d, s=%d, t=%d\n", ftime(), n, s, t);
 	fprintf(stderr, msg);
 	flog("output.log", msg);
 	
