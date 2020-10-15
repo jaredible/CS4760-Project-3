@@ -178,7 +178,7 @@ static void usage(int status) {
 		printf("       %s [-n x] [-s x] [-t time] infile\n", getProgramName());
 		printf("DESCRIPTION\n");
 		printf("       -h       : Print a help message or usage, and exit\n");
-		printf("       -n x     : Maximum total of child process (default 4)\n");
+		printf("       -n x     : Maximum total of child processes allowed to exist (default 4)\n");
 		printf("       -s x     : Number of children allowed to exist concurrently (default 2)\n");
 		printf("       -t time  : Time, in seconds, after which the program will terminate (default 100)\n");
 	}
