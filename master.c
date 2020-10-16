@@ -100,19 +100,20 @@ int main(int argc, char **argv) {
 		ok = false;
 	}
 	
+	/* Display usage if getting any program inputs failed */
 	if (!ok) usage(EXIT_FAILURE);
 	
-	/* Register Ctrl+C signal handler */
-	sigact(SIGINT, handler);
+	/* Register signal handlers */
+	sigact(SIGINT, handler); /* Handles Ctrl+C signal */
 	
 	/* Initialize output files */
-	rtouch("output.log");
-	rtouch("palin.out");
-	rtouch("nopalin.out");
+	rtouch("output.log"); /* Clear or create output.log */
+	rtouch("palin.out"); /* Clear or create touch palin.out */
+	rtouch("nopalin.out"); /* Clear or create nopalin.out */
 	
 	/* Initialize shared memory and semaphores */
-	shmAllocate(true);
-	semAllocate(true, 3);
+	shmAllocate(true); /* Allocate and initialize shared memory */
+	semAllocate(true, 3); /* Allocate and initialize 3 semaphores */
 	
 	/* Output the options */
 	char msg[BUFFER_LENGTH];
@@ -121,38 +122,45 @@ int main(int argc, char **argv) {
 	flog("output.log", msg);
 	
 	/* Initialize strings */
-	int c = load(path);
+	int c = load(path); /* Load strings using path */
 	
 	/* Output the string count */
-	sprintf(msg, "%s: Processing %d strings\n", ftime(), c);
+	sprintf(msg, "%s: Found %d strings\n", ftime(), c);
 	fprintf(stderr, msg);
 	flog("output.log", msg);
 	
 	/* Initialize timer */
 	if (t == 0) {
+		/* Act like the program timed out immediately */
 		finalize(true);
 		exit(EXIT_SUCCESS);
-	} else timer(t);
+	} else timer(t); /* Set timeout to t seconds */
 	
 	/* Clamp the options */
-	n = MIN(c, CHILD_COUNT);
-	s = MIN(s, n);
+	n = MIN(c, CHILD_COUNT); /* Set n to the minimum of the input file's string count or CHILD_COUNT */
+	s = MIN(s, n); /* Set s to the minimum of s or n */
 	
-	/* Temporary variables */
-	int i, j, status;
+	sprintf(msg, "%s: Attempting to process %d strings\n", ftime(), n);
+	fprintf(stderr, msg);
+	flog("output.log", msg);
+	
+	/* Define temporary variables */
+	int i; /* Represents a child process' index */
+	int j; /* Represents how many children have died */
+	int status; /* Represents the most recently terminated child's exit status */
 	
 	/* Spawn initial children */
 	for (i = 0; i < s; i++)
-		spawn(i);
+		spawn(i); /* Spawn child with index i */
 	
 	/* Keep trying to spawn children after one dies */
 	for (j = n; j > 0 && s > 0; j--) {
 		/* Wait for a child to die */
-		wait(&status);
+		wait(&status); /* Store the terminated child's exit status */
 		/* Output that a child process is finished */
 		if (WIFEXITED(status)) flog("output.log", "%s: Process %d finished\n", ftime(), WEXITSTATUS(status));
 		/* Attempt to spawn a child */
-		if (i < n) spawn(i++);
+		if (i < n) spawn(i++); /* Spawn child with index i */
 	}
 	
 	finalize(true);

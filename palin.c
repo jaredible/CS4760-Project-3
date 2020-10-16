@@ -1,6 +1,10 @@
 /*
  * palin.c 10/16/20
  * Jared Diehl (jmddnb@umsystem.edu)
+ * -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+ * This program checks to see if a
+ * string is a palindrome, and outputs
+ * the results.
  */
 
 /* Standard library header files */
@@ -29,24 +33,24 @@ static int cindex;
 int main(int argc, char **argv) {
 	init(argc, argv);
 	
-	/* Register signal handlers */
-	sigact(SIGTERM, handler);
-	sigact(SIGUSR1, handler);
+	/* Register signal handler */
+	sigact(SIGTERM, handler); /* Used for handling Ctrl+C signal from master */
+	sigact(SIGUSR1, handler); /* Used for handling timeout signal from master */
 	
 	/* Check and get option */
-	if (argc < 2) error("no argument supplied for index");
-	else cindex = atoi(argv[1]);
+	if (argc < 2) error("no argument supplied for index"); /* Error if we don't get the index argument */
+	else cindex = atoi(argv[1]); /* Set this process' index to the second argument */
 	
 	/* Initialize random's seed */
-	srand(time(NULL) + getpid() * cindex);
+	srand(time(NULL) + getpid() * cindex); /* Using time, PID, and this process' index increases randomness */
 	
 	/* Attach to shared memory and semaphores */
-	shmAllocate(false);
-	semAllocate(false);
+	shmAllocate(false); /* Allocate the shared memory, but don't initialize it */
+	semAllocate(false); /* Allocate the semaphores, but don't initialize them */
 	
 	/* Check if string is a palindrome */
-	char *string = getString(cindex);
-	bool is = palindrome(string);
+	char *string = getString(cindex); /* Get the string using this process' index */
+	bool is = palindrome(string); /* Get if the string is a palindrome */
 	
 	if (DEBUG) printf("%s: Process %d found that %s is %sa palindrome\n", ftime(), cindex, string, is ? "" : "not ");
 	
@@ -54,7 +58,7 @@ int main(int argc, char **argv) {
 	fprintf(stderr, "%s: Process %d wants to enter critical section\n", ftime(), cindex);
 	
 	/* Locks a semaphore */
-	semWait(is ? 0 : 1);
+	semWait(is ? 0 : 1); /* 0 is for palin.out, 1 is for nopalin.out */
 	
 	/* Enter critical section */
 	
@@ -70,10 +74,10 @@ int main(int argc, char **argv) {
 	/* Exit critical section */
 	
 	/* Unlocks a semaphore */
-	semSignal(is ? 0 : 1);
+	semSignal(is ? 0 : 1); /* 0 is for palin.out, 1 is for nopalin.out */
 	
 	/* Exit with the process' index */
-	return cindex;
+	return cindex; /* Used for master to know which process has finished */
 }
 
 /*
@@ -85,15 +89,20 @@ static bool palindrome(char *string) {
 	int li, ri;
 	char lc, rc;
 	
+	/* Loop until ri > li */
 	for (li = 0, ri = strlen(string) - 1; ri > li; li++, ri--) {
+		/* Increment li until lc is an alphanumeric character */
 		while (!isalnum((lc = tolower(string[li]))))
 			li++;
+		/* Decrement ri until rc is an alphanumeric character */
 		while (!isalnum((rc = tolower(string[ri]))))
 			ri--;
 		
+		/* Since lc is not rc, the characters are different, so the string isn't a palindrome */
 		if (lc != rc) return false;
 	}
 	
+	/* So the string is a palindrome */
 	return true;
 }
 
@@ -104,12 +113,12 @@ static bool palindrome(char *string) {
  */
 static void handler(int signal) {
 	/* Output the caught status and exit */
-	//semWait(2);
+	semWait(2);
 	char msg[BUFFER_LENGTH];
 	sprintf(msg, "%s: Process %d exiting due to %s signal\n", ftime(), cindex, signal == SIGUSR1 ? "timeout" : "interrupt");
 	fprintf(stderr, msg);
 	flog("output.log", msg);
-	//semSignal(2);
+	semSignal(2);
 
 	exit(EXIT_FAILURE);
 }
