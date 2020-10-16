@@ -124,11 +124,6 @@ int main(int argc, char **argv) {
 	/* Initialize strings */
 	int c = load(path); /* Load strings using path */
 	
-	/* Output the string count */
-	sprintf(msg, "%s: Found %d strings\n", ftime(), c);
-	fprintf(stderr, msg);
-	flog("output.log", msg);
-	
 	/* Initialize timer */
 	if (t == 0) {
 		/* Act like the program timed out immediately */
@@ -140,7 +135,7 @@ int main(int argc, char **argv) {
 	n = MIN(c, CHILD_COUNT); /* Set n to the minimum of the input file's string count or CHILD_COUNT */
 	s = MIN(s, n); /* Set s to the minimum of s or n */
 	
-	sprintf(msg, "%s: Attempting to process %d strings\n", ftime(), n);
+	sprintf(msg, "%s: Attempting to process %d string(s)\n", ftime(), n);
 	fprintf(stderr, msg);
 	flog("output.log", msg);
 	
