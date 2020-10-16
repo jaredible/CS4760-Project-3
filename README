@@ -1,7 +1,7 @@
 # CS4760 Project 3: Semaphores and Message Passing
 
 ##### DESCRIPTION
-This program separates a list of strings (up to 20 lines), from a file, into 2 other files, and
+This program separates a list of strings (up to 20), from a file, into 2 other files, and
 logs its execution. For each string, it will check if it's a palindrome. Strings that are palindromes
 are written to "palin.out", otherwise "nopalin.out". Program execution is logged to "output.log".
 Regarding the input file, each line should contain a single string, up to 255 characters, consisting
@@ -22,7 +22,7 @@ make
 
 ##### EXECUTION
 ./master -h
-./master [-s x] [-t time] infile
+./master [-n x] [-s x] [-t time] infile
 
 Nice to know:
 - see all your shared memory segments: ipcs -m | grep $USER
@@ -35,10 +35,10 @@ Nice to know:
 - Didn't implement a shared clock (Approved)
 - Added new files to improve modularity (Approved)
 - Only alphanumeric characters are allowed in the input file
-- To improve concurrency, used more than 1 semaphore
+- To improve concurrency, used 3 semaphores instead of 1
 
 ##### ISSUES
-- A sleeping process doesn't invoke its signal handler
+- A sleeping palin process doesn't invoke its user-defined signal handler
 
 ##### CHANGELOG
 commit ae0fadc9250927299fbc7c43d8d8bd3c8ad8f919
