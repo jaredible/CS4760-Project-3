@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
 	}
 	
 	/* Path of input file */
-	char *path;
+	char *path = NULL;
 	
 	/* Check input file */
 	if ((path = argv[optind]) == NULL) {
@@ -204,7 +204,7 @@ static int load(char *path) {
 	if ((fp = fopen(path, "r")) == NULL) crash("fopen");
 	
 	int i = 0;
-	char *line;
+	char *line = NULL;
 	size_t len = 0;
 	ssize_t read;
 	
@@ -215,7 +215,7 @@ static int load(char *path) {
 	}
 	
 	if (fclose(fp) == EOF) crash("fclose");
-	if (line) free(line);
+	if (line != NULL) free(line);
 	
 	return i;
 }
