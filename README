@@ -41,6 +41,108 @@ Nice to know:
 - A sleeping palin process doesn't invoke its user-defined signal handler
 
 ##### CHANGELOG
+commit d20032ad839447b910e752b01d583ebac374380d
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Fri Oct 16 16:29:29 2020 -0500
+
+    Added more helpful comments
+
+commit 4d6f03a40b94522c8f088e8e78a99fefff5de63a
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Fri Oct 16 16:29:04 2020 -0500
+
+    Updated README
+
+commit e318b71feafe08d35a848f12b69e5579aa208716
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Wed Oct 14 22:44:31 2020 -0500
+
+    Updated usage
+
+commit 68330662bd80de298c2adece80b586cf3f45fdc0
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Wed Oct 14 13:13:11 2020 -0500
+
+    Updated option output for start
+
+commit 44d5e82e82d9f86f1e4063cfb8baee9b24a3788d
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Tue Oct 13 17:51:50 2020 -0500
+
+    Added an additional adjustment
+
+commit f1a4df4f0edc5b94a0c85fcf2bca8d294ae218e5
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Tue Oct 13 17:51:05 2020 -0500
+
+    Refactored weird code and updated comments
+
+commit 871b48e818908a8045feee38df8316de81a92cc8
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Tue Oct 13 17:49:54 2020 -0500
+
+    Implemented total processes option
+
+commit 7276b8619cb4c6502655a63a5231ad69aba44a20
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Mon Oct 12 23:05:54 2020 -0500
+
+    Removed redundancies
+
+commit 8dc110701e96f1027c382f4698dfde416339cba2
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Mon Oct 12 23:04:54 2020 -0500
+
+    Added comments
+
+commit ff459f7da6e1e0c07a79407f041f2189a94cc2e9
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Mon Oct 12 23:04:17 2020 -0500
+
+    Updated README
+
+commit 6a2ce48912fba2b23c14736695e6ee302a450aac
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Mon Oct 12 17:13:45 2020 -0500
+
+    Updated logging
+
+commit a5f41f14ccdda3d29c0163fbedaa11b49f433c88
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Mon Oct 12 15:24:14 2020 -0500
+
+    Updated logic
+
+commit f167ff2c1ab7041e8ff9b267194b19a059f917cb
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Mon Oct 12 15:23:43 2020 -0500
+
+    Added more strings
+
+commit 9577abc3d74cc2cf41b0d2fa3bd1da195b57a25a
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Mon Oct 12 14:10:17 2020 -0500
+
+    Removed pointless conditional
+
+commit af24e0ca3f33f9af00c1294b958bb731f3455f26
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Mon Oct 12 14:09:38 2020 -0500
+
+    Updated strings.in
+
+commit 9234bf176295eb4a5507148a66274481cd84b3b3
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Mon Oct 12 13:46:30 2020 -0500
+
+    Fixed inadequacies
+
+commit d9bdc176d4528df8483a2e81fdd9f7f5aa4dcb0d
+Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
+Date:   Mon Oct 12 13:21:30 2020 -0500
+
+    Added changelog
+
 commit ae0fadc9250927299fbc7c43d8d8bd3c8ad8f919
 Author: Jared Diehl <diehl@hoare7.cs.umsl.edu>
 Date:   Mon Oct 12 13:20:25 2020 -0500
