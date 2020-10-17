@@ -153,7 +153,7 @@ int main(int argc, char **argv) {
 		/* Wait for a child to die */
 		wait(&status); /* Store the terminated child's exit status */
 		/* Output that a child process is finished */
-		if (WIFEXITED(status)) flog("output.log", "%s: Process %d finished\n", ftime(), WEXITSTATUS(status));
+		if (WIFEXITED(status)) flog("output.log", "%s: Process %d finished\n", ftime(), WEXITSTATUS(status) - EXIT_STATUS_OFFSET);
 		/* Attempt to spawn a child */
 		if (i < n) spawn(i++); /* Spawn child with index i */
 	}

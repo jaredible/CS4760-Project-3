@@ -44,12 +44,15 @@ char *getProgramName() {
 void error(char *fmt, ...) {
 	char buf[BUFFER_LENGTH];
 	va_list args;
-
+	
 	va_start(args, fmt);
 	vsnprintf(buf, BUFFER_LENGTH, fmt, args);
 	va_end(args);
-
+	
 	fprintf(stderr, "%s: %s\n", programName, buf);
+	
+	shmRelease();
+	semRelease();
 }
 
 void crash(char *msg) {
@@ -59,7 +62,7 @@ void crash(char *msg) {
 	
 	shmRelease();
 	semRelease();
-
+	
 	exit(EXIT_FAILURE);
 }
 

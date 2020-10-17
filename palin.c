@@ -38,8 +38,10 @@ int main(int argc, char **argv) {
 	sigact(SIGUSR1, handler); /* Used for handling timeout signal from master */
 	
 	/* Check and get option */
-	if (argc < 2) error("no argument supplied for index"); /* Error if we don't get the index argument */
-	else cindex = atoi(argv[1]); /* Set this process' index to the second argument */
+	if (argc < 2) {
+		error("no argument supplied for index"); /* Error if we don't get the index argument */
+		exit(EXIT_FAILURE);
+	} else cindex = atoi(argv[1]); /* Set this process' index to the second argument */
 	
 	/* Initialize random's seed */
 	srand(time(NULL) + getpid() * cindex); /* Using time, PID, and this process' index increases randomness */
@@ -77,7 +79,7 @@ int main(int argc, char **argv) {
 	semSignal(is ? 0 : 1); /* 0 is for palin.out, 1 is for nopalin.out */
 	
 	/* Exit with the process' index */
-	return cindex; /* Used for master to know which process has finished */
+	return cindex + EXIT_STATUS_OFFSET; /* Used for master to know which process has finished */
 }
 
 /*
