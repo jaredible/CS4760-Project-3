@@ -2,7 +2,7 @@
 master
 palin
 
-# Objects
+# Object files
 *.o
 
 # Logs
